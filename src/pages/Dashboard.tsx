@@ -86,6 +86,23 @@ export const Dashboard = ({ habit, onUpdateHabit }: DashboardProps) => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05, duration: 0.5 }}
+        className="bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border border-primary/20 rounded-2xl p-6"
+      >
+        <div className="flex items-start gap-4">
+          <Sparkles className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
+          <div>
+            <h3 className="text-xl font-bold text-foreground mb-2">Твоя цель</h3>
+            <p className="text-lg text-muted-foreground">
+              Через 90 дней ты будешь с удовольствием выполнять не менее 20 минут упражнений и 5000 шагов каждый день.
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.5 }}
       >
         <MotivationalQuote />
