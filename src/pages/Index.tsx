@@ -1,49 +1,91 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HabitGoalCard } from '@/components/HabitGoalCard';
+import { Dashboard } from './Dashboard';
 import { habitGoals, microStepsByCategory } from '@/data/habitGoals';
 import { Habit, HabitCategory } from '@/types/habit';
+import { ArrowLeft, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
-import Dashboard from './Dashboard';
+import { loadHabit, saveHabit, clearHabit } from '@/utils/habitStorage';
+import { toast } from '@/components/ui/use-toast';
 
 const Index = () => {
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
 
+  useEffect(() => {
+    const savedHabit = loadHabit();
+    if (savedHabit) {
+      setSelectedHabit(savedHabit);
+    }
+  }, []);
+
   const handleGoalSelect = (category: HabitCategory) => {
     const goal = habitGoals.find(g => g.category === category);
+    if (goal?.isLocked) {
+      toast({
+        title: "🔒 Привычка заблокирована",
+        description: "Завершите первую привычку, чтобы разблокировать остальные!",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (!goal) return;
 
+    const microSteps = microStepsByCategory[category] || [];
     const newHabit: Habit = {
-      id: Date.now().toString(),
+      id: `habit-${Date.now()}`,
       category,
       title: goal.title,
       icon: goal.icon,
       gradient: goal.gradient,
       currentDay: 1,
       streak: 0,
-      microSteps: microStepsByCategory[category] || [],
+      microSteps: [...microSteps],
       startDate: new Date(),
       isActive: true,
     };
-
+    
+    saveHabit(newHabit);
     setSelectedHabit(newHabit);
+  };
+
+  const handleUpdateHabit = (updatedHabit: Habit) => {
+    saveHabit(updatedHabit);
+    setSelectedHabit(updatedHabit);
+  };
+
+  const handleResetHabit = () => {
+    clearHabit();
+    setSelectedHabit(null);
+    toast({
+      title: "🔄 Прогресс сброшен",
+      description: "Начните новое путешествие!",
+    });
   };
 
   if (selectedHabit) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-6">
+      <div className="min-h-screen bg-background p-6">
+        <div className="flex gap-4 mb-6">
           <Button
             variant="ghost"
             onClick={() => setSelectedHabit(null)}
-            className="mb-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Вернуться к выбору цели
+            Назад к выбору целей
           </Button>
-          <Dashboard habit={selectedHabit} onUpdateHabit={setSelectedHabit} />
+          <Button
+            variant="destructive"
+            onClick={handleResetHabit}
+          >
+            Сбросить прогресс
+          </Button>
         </div>
+        <Dashboard 
+          habit={selectedHabit} 
+          onUpdateHabit={handleUpdateHabit}
+        />
       </div>
     );
   }
@@ -83,12 +125,21 @@ const Index = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {habitGoals.map((goal, index) => (
-            <HabitGoalCard
-              key={goal.category}
-              goal={goal}
-              onClick={() => handleGoalSelect(goal.category)}
-              index={index}
-            />
+            <div key={goal.category} className="relative">
+              <HabitGoalCard
+                goal={goal}
+                onClick={() => handleGoalSelect(goal.category)}
+                index={index}
+              />
+              {goal.isLocked && (
+                <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                  <div className="text-center">
+                    <Lock className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">Заблокировано</p>
+                  </div>
+                </div>
+              )}
+            </div>
           ))}
         </div>
 
