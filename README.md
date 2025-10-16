@@ -62,7 +62,18 @@ This project is built with:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/813d020b-6edc-441b-a82c-60628a974d70) and click on Share -> Publish.
+### GitHub Pages (recommended)
+
+This repository now includes a GitHub Actions workflow that automatically builds the Vite project and publishes the optimized static assets to GitHub Pages. To trigger a deployment:
+
+1. Make sure GitHub Pages is configured to use **GitHub Actions** as the deployment source in the repository settings.
+2. Push commits to the `main` branch (or click **Run workflow** from the Actions tab).
+
+The workflow will install dependencies with `npm ci`, run the production build, and upload the contents of the `dist/` folder to GitHub Pages. The deployed site is available at `https://<your-username>.github.io/micro-stride-hero/` once the workflow completes successfully.
+
+### Lovable one-click publish
+
+You can still open [Lovable](https://lovable.dev/projects/813d020b-6edc-441b-a82c-60628a974d70) and click on Share -> Publish if you prefer the Lovable hosting flow.
 
 ## Can I connect a custom domain to my Lovable project?
 
