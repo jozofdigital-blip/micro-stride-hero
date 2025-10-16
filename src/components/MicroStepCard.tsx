@@ -16,17 +16,19 @@ export const MicroStepCard = ({ step, onToggle }: MicroStepCardProps) => {
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className={`p-6 cursor-pointer transition-all duration-300 ${
-        step.completed 
-          ? 'bg-success/10 border-success' 
-          : 'bg-card hover:shadow-card'
-      }`}>
+      <Card 
+        onClick={onToggle}
+        className={`p-6 cursor-pointer transition-all duration-300 ${
+          step.completed 
+            ? 'bg-success/10 border-success' 
+            : 'bg-card hover:shadow-card'
+        }`}
+      >
         <div className="flex items-start gap-4">
           <div className="mt-1">
             <Checkbox
               checked={step.completed}
-              onCheckedChange={onToggle}
-              className="h-6 w-6"
+              className="h-6 w-6 pointer-events-none"
             />
           </div>
           

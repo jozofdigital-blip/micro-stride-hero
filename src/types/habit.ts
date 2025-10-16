@@ -5,6 +5,7 @@ export interface MicroStep {
   title: string;
   description: string;
   completed: boolean;
+  completedDate?: string;
 }
 
 export interface Habit {
@@ -27,4 +28,5 @@ export interface HabitGoal {
   icon: string;
   gradient: string;
   totalDays: number;
+  isLocked?: boolean;
 }
