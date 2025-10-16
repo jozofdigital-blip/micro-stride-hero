@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="refresh" content="0;url=/micro-stride-hero/#/" />
+    <title>Redirecting…</title>
+    <script>
+      (function () {
+        const projectBase = "/micro-stride-hero";
+        const path = window.location.pathname.replace(new RegExp(`^${projectBase}`), "");
+        const search = window.location.search;
+        const hash = window.location.hash;
+        const redirectUrl = `${projectBase}/#${path}${search}${hash}`;
+        window.location.replace(redirectUrl);
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Redirecting to the application…</p>
+  </body>
+</html>
