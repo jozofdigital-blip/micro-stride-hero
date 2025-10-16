@@ -11,11 +11,12 @@ import { toast } from '@/components/ui/use-toast';
 
 const Index = () => {
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
+  const [savedHabit, setSavedHabit] = useState<Habit | null>(null);
 
   useEffect(() => {
-    const savedHabit = loadHabit();
-    if (savedHabit) {
-      setSelectedHabit(savedHabit);
+    const storedHabit = loadHabit();
+    if (storedHabit) {
+      setSavedHabit(storedHabit);
     }
   }, []);
 
@@ -48,20 +49,29 @@ const Index = () => {
     
     saveHabit(newHabit);
     setSelectedHabit(newHabit);
+    setSavedHabit(newHabit);
   };
 
   const handleUpdateHabit = (updatedHabit: Habit) => {
     saveHabit(updatedHabit);
     setSelectedHabit(updatedHabit);
+    setSavedHabit(updatedHabit);
   };
 
   const handleResetHabit = () => {
     clearHabit();
     setSelectedHabit(null);
+    setSavedHabit(null);
     toast({
       title: "🔄 Прогресс сброшен",
       description: "Начните новое путешествие!",
     });
+  };
+
+  const handleContinueHabit = () => {
+    if (savedHabit) {
+      setSelectedHabit(savedHabit);
+    }
   };
 
   if (selectedHabit) {
@@ -91,19 +101,36 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-12">
+    <div className="min-h-[100dvh] bg-background">
+      <div className="mx-auto flex w-full max-w-md flex-col gap-8 px-4 py-6 sm:max-w-3xl sm:py-10">
+        {savedHabit && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+            className="rounded-2xl border border-primary/20 bg-card/80 px-4 py-3 shadow-sm backdrop-blur sm:flex sm:items-center sm:justify-between"
+          >
+            <div className="text-sm text-muted-foreground">
+              <p className="font-semibold text-foreground">{savedHabit.icon} {savedHabit.title}</p>
+              <p className="text-xs opacity-80">Продолжите с того же места</p>
+            </div>
+            <Button size="sm" className="mt-3 w-full sm:mt-0 sm:w-auto" onClick={handleContinueHabit}>
+              Продолжить
+            </Button>
+          </motion.div>
+        )}
+
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          className="text-center space-y-3"
         >
-          <h1 className="text-5xl font-bold text-foreground mb-4">
+          <h1 className="text-4xl font-bold text-foreground sm:text-5xl">
             MyFocus
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Выбери одну привычку и следуй микрошагам к большой цели. 
+          <p className="mx-auto max-w-sm text-base text-muted-foreground sm:max-w-2xl sm:text-xl">
+            Выбери одну привычку и следуй микрошагам к большой цели.
             <br />
             <span className="text-primary font-semibold">1% лучше каждый день</span>
           </p>
@@ -113,31 +140,35 @@ const Index = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.6 }}
-          className="mb-8 text-center"
+          className="text-center"
         >
-          <h2 className="text-2xl font-semibold text-foreground mb-2">
+          <h2 className="text-xl font-semibold text-foreground sm:text-2xl">
             Выбери свою цель
           </h2>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground sm:text-base">
             Фокус на одной привычке — залог успеха
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
           {habitGoals.map((goal, index) => (
             <div key={goal.category} className="relative">
               <HabitGoalCard
                 goal={goal}
                 onClick={() => handleGoalSelect(goal.category)}
                 index={index}
+                isLocked={goal.isLocked}
               />
               {goal.isLocked && (
-                <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <Lock className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Заблокировано</p>
+                <>
+                  <div className="pointer-events-none absolute inset-0 rounded-lg bg-background/75 backdrop-blur-sm" />
+                  <div className="pointer-events-none absolute inset-0 rounded-lg">
+                    <div className="absolute right-3 top-3 flex items-center gap-2 rounded-full bg-background/95 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
+                      <Lock className="h-4 w-4" />
+                      <span>Заблокировано</span>
+                    </div>
                   </div>
-                </div>
+                </>
               )}
             </div>
           ))}
@@ -147,19 +178,14 @@ const Index = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8, duration: 0.6 }}
-          className="text-center mt-16 max-w-3xl mx-auto"
+          className="rounded-3xl bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 p-6 text-center sm:p-8"
         >
-          <div className="bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 rounded-2xl p-8">
-            <h3 className="text-2xl font-bold text-foreground mb-4">
-              Почему только одна привычка?
-            </h3>
-            <p className="text-muted-foreground leading-relaxed">
-              Исследования показывают: чем меньше целей, тем выше шанс успеха. 
-              Каждая привычка разбита на микрошаги — крошечные действия, 
-              которые легко выполнить. Каждый шаг приносит награду. 
-              Так формируется настоящая привычка.
-            </p>
-          </div>
+          <h3 className="text-lg font-semibold text-foreground sm:text-2xl">
+            Почему только одна привычка?
+          </h3>
+          <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+            Микрошаги помогают встроить новые действия в повседневность. Сфокусируйтесь на одной цели, выполняйте небольшие шаги и фиксируйте прогресс каждый день.
+          </p>
         </motion.div>
       </div>
     </div>
