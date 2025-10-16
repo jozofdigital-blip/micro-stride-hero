@@ -157,14 +157,18 @@ const Index = () => {
                 goal={goal}
                 onClick={() => handleGoalSelect(goal.category)}
                 index={index}
+                isLocked={goal.isLocked}
               />
               {goal.isLocked && (
-                <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <Lock className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Заблокировано</p>
+                <>
+                  <div className="pointer-events-none absolute inset-0 rounded-lg bg-background/75 backdrop-blur-sm" />
+                  <div className="pointer-events-none absolute inset-0 rounded-lg">
+                    <div className="absolute right-3 top-3 flex items-center gap-2 rounded-full bg-background/95 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm">
+                      <Lock className="h-4 w-4" />
+                      <span>Заблокировано</span>
+                    </div>
                   </div>
-                </div>
+                </>
               )}
             </div>
           ))}
