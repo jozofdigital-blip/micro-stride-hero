@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="refresh" content="0;url=./#/" />
+    <title>Redirecting…</title>
+    <script>
+      (function () {
+        const { pathname, search, hash } = window.location;
+        const segments = pathname.split("/").filter(Boolean);
+        const repositorySegment = segments.length > 0 ? `/${segments[0]}` : "";
+        const projectBase = repositorySegment ? repositorySegment : "";
+        const sanitizedPath = pathname.replace(new RegExp(`^${projectBase}`), "");
+        const normalizedPath = sanitizedPath.replace(/^\//, "");
+        const hashPath = normalizedPath ? `/${normalizedPath}` : "/";
+        const redirectUrl = `${projectBase}/#${hashPath}${search}${hash}`;
+        window.location.replace(redirectUrl);
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Redirecting to the application…</p>
+  </body>
+</html>
