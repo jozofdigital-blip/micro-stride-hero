@@ -1,1 +1,4 @@
 project_id = "ckcrbzavjctezicalmyz"
+
+[functions.yookassa-webhook]
+verify_jwt = false

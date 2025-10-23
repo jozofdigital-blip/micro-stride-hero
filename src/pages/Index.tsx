@@ -1,24 +1,53 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { HabitGoalCard } from '@/components/HabitGoalCard';
 import { Dashboard } from './Dashboard';
+import { SubscriptionStatus } from '@/components/SubscriptionStatus';
 import { habitGoals, microStepsByCategory } from '@/data/habitGoals';
 import { Habit, HabitCategory } from '@/types/habit';
 import { ArrowLeft, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { loadHabit, saveHabit, clearHabit } from '@/utils/habitStorage';
 import { toast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
   const [savedHabit, setSavedHabit] = useState<Habit | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const storedHabit = loadHabit();
-    if (storedHabit) {
-      setSavedHabit(storedHabit);
+    // Check authentication
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+      
+      if (!session) {
+        navigate('/auth');
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (!session) {
+        navigate('/auth');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  useEffect(() => {
+    if (user) {
+      const storedHabit = loadHabit();
+      if (storedHabit) {
+        setSavedHabit(storedHabit);
+      }
     }
-  }, []);
+  }, [user]);
 
   const handleGoalSelect = (category: HabitCategory) => {
     const goal = habitGoals.find(g => g.category === category);
@@ -74,6 +103,18 @@ const Index = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Загрузка...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   if (selectedHabit) {
     return (
       <div className="min-h-screen bg-background p-6">
@@ -103,6 +144,8 @@ const Index = () => {
   return (
     <div className="min-h-[100dvh] bg-background">
       <div className="mx-auto flex w-full max-w-md flex-col gap-8 px-4 py-6 sm:max-w-3xl sm:py-10">
+        <SubscriptionStatus />
+        
         {savedHabit && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
